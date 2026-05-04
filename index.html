@@ -155,47 +155,41 @@
     display: grid;
     grid-template-columns: 1fr auto;
     gap: 10px;
-    align-items: stretch;
+    align-items: center;
   }
   .radius-route-row .radius-section {
     min-width: 0;
     display: flex;
     flex-direction: column;
-    justify-content: space-between;
-    gap: 8px;
+    gap: 6px;
   }
-  .route-open-compact {
-    display: flex;
-    flex-direction: column;
-    justify-content: space-between;
-    align-items: stretch;
-    width: auto;
-    min-width: 108px;
-    padding: 9px 14px 10px;
-    gap: 8px;
-  }
-  .route-open-compact .route-open-top {
-    display: flex;
+  .route-open-btn.route-open-compact {
+    display: inline-flex;
+    flex: 0 0 auto;
+    flex-direction: row;
     align-items: center;
-    justify-content: space-between;
-    gap: 10px;
+    justify-content: center;
+    width: auto;
+    min-width: auto;
+    padding: 6px 10px;
+    gap: 6px;
+    border-radius: 8px;
   }
-  .route-open-compact .route-open-icon {
-    font-size: 21px;
+  .route-open-compact .route-open-icon { display: none; }
+  .route-open-compact .route-open-text {
+    display: inline;
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: 0.04em;
+    color: rgba(77, 184, 255, 0.95);
     line-height: 1;
+    text-transform: none;
   }
   .route-open-compact .route-open-badge {
     margin: 0;
-    padding: 2px 9px;
-  }
-  .route-open-compact .route-open-text {
-    font-size: 9.5px;
-    font-weight: 700;
-    letter-spacing: 0.10em;
-    text-transform: uppercase;
-    color: rgba(77, 184, 255, 0.85);
-    text-align: center;
-    line-height: 1;
+    padding: 1px 6px;
+    font-size: 10px;
+    min-width: 14px;
   }
   /* Route Planner entry button */
   .route-open-btn {
@@ -336,9 +330,9 @@
   }
   .input::placeholder { color: var(--text-mute); }
   .input:focus { outline: none; border-color: var(--orange); background: rgba(255,255,255,0.09); }
-  .slider-row { display: flex; justify-content: space-between; align-items: baseline; margin-bottom: 8px; }
+  .slider-row { display: flex; align-items: baseline; gap: 8px; margin-bottom: 8px; }
   .slider-row .val {
-    font-size: 22px; font-weight: 700;
+    font-size: 18px; font-weight: 700;
     background: var(--orange-grad);
     -webkit-background-clip: text; background-clip: text; color: transparent;
     font-variant-numeric: tabular-nums;
@@ -346,6 +340,20 @@
   .slider-row .val .unit {
     font-size: 11px; color: var(--text-mute); margin-left: 2px;
     -webkit-text-fill-color: var(--text-mute); font-weight: 500;
+  }
+  .total-inline {
+    font-size: 11px;
+    color: var(--text-mute);
+    -webkit-text-fill-color: var(--text-mute);
+    font-weight: 600;
+    margin-left: 8px;
+    letter-spacing: 0.02em;
+  }
+  .total-inline::before { content: '· '; opacity: 0.5; }
+  .visited-inline {
+    margin-left: 6px;
+    color: var(--check);
+    font-weight: 600;
   }
   input[type="range"] {
     width: 100%; height: 4px;
@@ -901,8 +909,11 @@
     .map-wrap { flex: 0 0 auto; height: 35vh; min-height: 220px; }
     .list-wrap { flex: 0 0 auto; overflow: visible; }
     .list { overflow: visible; padding-bottom: max(20px, env(safe-area-inset-bottom, 0px)); }
-    .search-mini { width: 140px; }
-    .list-header { flex-wrap: wrap; }
+    .search-mini { width: 210px; padding: 9px 13px; font-size: 13.5px; }
+    .list-header { flex-wrap: nowrap; gap: 6px; padding: 10px 14px; }
+    .list-header h2 { font-size: 14px; }
+    .list-header .count { font-size: 10.5px; margin-left: 0; display: block; line-height: 1.3; margin-top: 1px; }
+    .list-header > div:first-child { min-width: 0; flex: 1 1 auto; overflow: hidden; }
     header {
       min-height: 46px;
       padding-left: max(10px, env(safe-area-inset-left, 0px));
@@ -958,23 +969,15 @@
       </div>
     </div>
 
-    <div class="radius-route-row">
-      <div class="radius-section">
-        <div class="slider-row">
-          <h3 style="margin-bottom: 0;">Radius</h3>
-          <div class="val"><span id="radius-val">30</span><span class="unit">mi</span></div>
+    <div class="radius-section">
+      <div class="slider-row">
+        <h3 style="margin-bottom: 0;">Radius</h3>
+        <div class="val">
+          <span id="radius-val">30</span><span class="unit">mi</span>
+          <span class="total-inline"><span id="stat-total">0</span> total</span>
         </div>
-        <input type="range" id="radius-slider" min="0" max="100" step="1" value="30">
       </div>
-
-      <!-- Route Planner entry button (opens overlay view) -->
-      <button class="route-open-btn route-open-compact" id="route-open">
-        <div class="route-open-top">
-          <span class="route-open-icon">🗺</span>
-          <span class="route-open-badge" id="route-open-badge">0</span>
-        </div>
-        <span class="route-open-text">Route Planner</span>
-      </button>
+      <input type="range" id="radius-slider" min="0" max="100" step="1" value="30">
     </div>
 
     <div class="controls-row">
@@ -991,20 +994,6 @@
         </div>
       </details>
       <button class="btn danger reset-btn-compact" id="reset-btn" title="Reset all visited markers and notes">↺ Reset</button>
-    </div>
-
-    <div>
-      <h3>Status</h3>
-      <div class="stat-grid">
-        <div class="stat-card">
-          <div class="num orange" id="stat-checked">0</div>
-          <div class="label">Visited</div>
-        </div>
-        <div class="stat-card">
-          <div class="num" id="stat-total">0</div>
-          <div class="label">Total</div>
-        </div>
-      </div>
     </div>
 
     <div class="sidebar-footer" style="margin-top: auto;">
@@ -1029,8 +1018,16 @@
       <div class="list-header">
         <div>
           <h2>Prospects</h2>
-          <span class="count" id="list-count">0 locations</span>
+          <span class="count">
+            <span id="list-count">0 locations</span>
+            <span class="visited-inline">· <span id="stat-checked">0</span> visited</span>
+          </span>
         </div>
+        <button class="route-open-btn route-open-compact" id="route-open">
+          <span class="route-open-icon">🗺</span>
+          <span class="route-open-text">Route</span>
+          <span class="route-open-badge" id="route-open-badge">0</span>
+        </button>
         <input type="text" class="search-mini" id="search" placeholder="Search…">
       </div>
       <div class="list" id="list"></div>
